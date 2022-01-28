@@ -6,8 +6,9 @@ module b3d_ggd
 
 contains
   
-  subroutine write_b3d( shotnum,runnum,treename, username, machine, time,&
-       r, phi, z,  data_Br, data_Bphi, data_Bz, code_name, comment)
+  subroutine write_b3d( shotnum,runnum,treename, username, machine, time, &
+       r, phi, z,  data_Br, data_Bphi, data_Bz, code_name, comment, &
+       data_psi, data_phi, data_theta )
 
     use ids_types           !! IMAS IDS standard Fortran data types, e.g.
                             !! real(IDS_real)
@@ -59,11 +60,14 @@ contains
     !! variables for writing the data
     type(ids_generic_grid_scalar)    :: idsField
     real(IDS_real), dimension(:,:,:), intent(in) :: data_Br, data_Bphi, data_Bz
+    real(IDS_real), dimension(:,:,:), intent(in), optional :: data_psi   !! Values of the poloidal flux, given on various grid subsets [Wb]
+    real(IDS_real), dimension(:,:,:), intent(in), optional :: data_phi   !! Values of the toroidal flux, given on various grid subsets [Wb]
+    real(IDS_real), dimension(:,:,:), intent(in), optional :: data_theta !! Values of the poloidal angle, given on various grid subsets [rad]
     integer :: grid_index
 
     integer, parameter  :: gridSubset_index = 1 !nodes 
 
-    type(ids_generic_grid_scalar), pointer :: B_r, B_phi, B_z
+    type(ids_generic_grid_scalar), pointer :: B_r, B_phi, B_z, phi_gs, psi_gs, theta_gs
 
 
     integer, parameter :: homogenous_time = 1
@@ -145,6 +149,21 @@ contains
     call gridStructWriteData( grid, B_phi, grid_index, gridSubset_index, data_Bphi )
     call gridStructWriteData( grid, B_z,   grid_index, gridSubset_index, data_Bz )
 
+    if ( present(data_psi)   ) then
+       allocate( equilibrium%time_slice(1)%ggd(1)%psi(1) )
+       psi_gs    => equilibrium%time_slice(1)%ggd(1)%psi(1)
+       call gridStructWriteData( grid, psi_gs,     grid_index, gridSubset_index, data_psi   )
+    end if
+    if ( present(data_phi)   ) then
+       allocate( equilibrium%time_slice(1)%ggd(1)%phi(1) )
+       phi_gs    => equilibrium%time_slice(1)%ggd(1)%phi(1)
+       call gridStructWriteData( grid, phi_gs,     grid_index, gridSubset_index, data_phi   )
+    end if
+    if ( present(data_theta) ) then 
+       allocate( equilibrium%time_slice(1)%ggd(1)%theta(1) )
+       theta_gs  => equilibrium%time_slice(1)%ggd(1)%theta(1)
+       call gridStructWriteData( grid, theta_gs,   grid_index, gridSubset_index, data_theta )
+    end if
 
     ! === Write the equilibrium IDS ===
 

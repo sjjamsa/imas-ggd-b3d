@@ -44,6 +44,24 @@ B_R   = np.reshape( ggd.b_field_r[   0 ].values, newshape=shape, order=order )
 B_tor = np.reshape( ggd.b_field_tor[ 0 ].values, newshape=shape, order=order )
 B_z   = np.reshape( ggd.b_field_z[   0 ].values, newshape=shape, order=order )
 
+if len( ggd.psi) > 0 :
+    psi_arr   = np.reshape( ggd.psi[   0 ].values, newshape=shape, order=order )
+else:
+    psi_arr   = None
+
+if len( ggd.phi) > 0 :
+    phi_arr   = np.reshape( ggd.phi[   0 ].values, newshape=shape, order=order )
+else:
+    phi_arr   = None
+
+if len( ggd.theta) > 0 :
+    theta_arr = np.reshape( ggd.theta[ 0 ].values, newshape=shape, order=order )
+else:
+    theta_arr = None
+
+# TODO:
+# Check if the psi,phi,theta present, print if they are
+
 print( "(nR,nphi,nz)=({},{},{})".format(nR,nphi,nz) )
 print( "shape of B_R:", B_R.shape)
 
@@ -53,4 +71,7 @@ print('z', z )
 print('B_R\n',B_R)
 print('B_tor\n',B_tor)
 print('B_z\n',B_z)
+print('psi\n',psi_arr)
+print('phi',phi_arr)
+print('theta\n',theta_arr)
 print('100x iR + 10x iPhi + iz ')

@@ -35,7 +35,7 @@ program ids_grid_example14_2dstructured_servicelibrary
 
 
   real(IDS_real), dimension(:), allocatable :: r, phi, z   !! Node coordinates on the axies
-  real(IDS_real), dimension(:,:,:), allocatable :: data_Br, data_Bphi, data_Bz
+  real(IDS_real), dimension(:,:,:), allocatable :: data_Br, data_Bphi, data_Bz, data_phi, data_psi, data_theta
   real(IDS_real) :: time 
 
   real(ids_real), parameter :: PI = 4.0_ids_real * ATAN(1.0_ids_real)
@@ -61,18 +61,25 @@ program ids_grid_example14_2dstructured_servicelibrary
   allocate( data_Br(   size(r), size(phi), size(z) ) )
   allocate( data_Bphi( size(r), size(phi), size(z) ) )
   allocate( data_Bz(   size(r), size(phi), size(z) ) )
+  allocate( data_phi(  size(r), size(phi), size(z) ) )
+  allocate( data_psi(  size(r), size(phi), size(z) ) )
+  allocate( data_theta(size(r), size(phi), size(z) ) )
   do i1=1,size(r)
      do i2=1,size(phi)
         do i3=1,size(z)
-           data_Br(  i1,i2,i3) = 100.0 * i1 + 10.0 * i2 + 1.0 * i3 + 0.10
-           data_Bphi(i1,i2,i3) = 100.0 * i1 + 10.0 * i2 + 1.0 * i3 + 0.20
-           data_Bz(  i1,i2,i3) = 100.0 * i1 + 10.0 * i2 + 1.0 * i3 + 0.30
+           data_Br(   i1,i2,i3) = 100.0 * i1 + 10.0 * i2 + 1.0 * i3 + 0.10
+           data_Bphi( i1,i2,i3) = 100.0 * i1 + 10.0 * i2 + 1.0 * i3 + 0.20
+           data_Bz(   i1,i2,i3) = 100.0 * i1 + 10.0 * i2 + 1.0 * i3 + 0.30
+           data_psi(  i1,i2,i3) = 100.0 * i1 + 10.0 * i2 + 1.0 * i3 + 0.50
+           data_phi(  i1,i2,i3) = 100.0 * i1 + 10.0 * i2 + 1.0 * i3 + 0.60
+           data_theta(i1,i2,i3) = 100.0 * i1 + 10.0 * i2 + 1.0 * i3 + 0.70
         end do
      end do
   end do
     
   call write_b3d( shotnum,runnum,treename, username, machine, time,&
-       r, phi, z,  data_Br, data_Bphi, data_Bz, code_name='write_b3d_ggd.f90', comment='writing B3D with grid service library')
+       r, phi, z,  data_Br, data_Bphi, data_Bz, code_name='write_b3d_ggd.f90', comment='writing B3D with grid service library', &
+       data_psi=data_psi, data_phi=data_phi, data_theta=data_theta)
 
 
 end program ids_grid_example14_2dstructured_servicelibrary
