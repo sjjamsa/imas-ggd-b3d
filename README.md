@@ -24,9 +24,9 @@ python b3d_ggd.py
 
 A list of relevant JIRA issues:
 * Basically exactly our problem:
- * [Import 3D equilibria using GVEC (3D Grids)](https://jira.iter.org/browse/IMAS-3190)
+  * [Import 3D equilibria using GVEC (3D Grids)](https://jira.iter.org/browse/IMAS-3190)
 * Getting GSL in python:
- * [Python and Matlab GGD routines](https://jira.iter.org/browse/IMAS-2290)
- * [IMAS GGD in Python](https://jira.iter.org/browse/IMAS-1764)
+  * [Python and Matlab GGD routines](https://jira.iter.org/browse/IMAS-2290)
+  * [IMAS GGD in Python](https://jira.iter.org/browse/IMAS-1764)
 * Not directly related:
- * [Add LOCUST-IMAS wall/GGD functionality](https://jira.iter.org/browse/IMAS-2378)
+  * [Add LOCUST-IMAS wall/GGD functionality](https://jira.iter.org/browse/IMAS-2378)
