@@ -25,6 +25,7 @@ python b3d_ggd.py
 A list of relevant JIRA issues:
 * Basically exactly our problem:
   * [Import 3D equilibria using GVEC (3D Grids)](https://jira.iter.org/browse/IMAS-3190)
+  * [Non-axisymmetric magnetic axis in equilibrium](https://jira.iter.org/browse/IMAS-4039)
 * Getting GSL in python:
   * [Python and Matlab GGD routines](https://jira.iter.org/browse/IMAS-2290)
   * [IMAS GGD in Python](https://jira.iter.org/browse/IMAS-1764)
