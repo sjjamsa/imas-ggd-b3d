@@ -1,7 +1,5 @@
 !-------------------------------------------------------------------------------
-
 !
-
 !> DESCRIPTION:
 !> @authors: Simppa Akaslompolo 
 !>
@@ -21,8 +19,8 @@ program ids_grid_example14_2dstructured_servicelibrary
 
   implicit none
 
-  integer, parameter  ::  shotNum  = 16
-  integer, parameter  ::  runNum   = 2
+  integer, parameter  ::  shotNum  = 18
+  integer, parameter  ::  runNum   = 3
   character(len=24)   ::  treename = "ids"        !! Treename
   character(len=24)   ::  username                !! current login username.
                                                   !! Will be provided with
@@ -42,21 +40,31 @@ program ids_grid_example14_2dstructured_servicelibrary
 
   integer :: i1, i2, i3
 
+  integer, parameter :: nR=150, nPhi=180, nz=201
+
   call getlog(username)
 
   time = 2.2222
 
-  allocate( r(3) )
-  allocate( phi(4) )
-  allocate( z(5) )
+  allocate( r(nR) )
+  allocate( phi(nPhi) )
+  allocate( z(nz) )
   
   ! R
-  r = (/ 3.0, 4.0, 5.0 /)
+  !r = (/ 3.0, 4.0, 5.0 /)
+  do i1=1,nR
+     r(i1) = 1.0 + real(i1-1)/real(nR-1)
+  end do
   ! phi in radians. In this case we have a 40 degree periodic module. The last index is not repeated
-  phi = (/ 0.0, 10.0, 20.0, 30.0 /)
-  phi = phi * 2.0 * pi / 360.0
+  !phi = (/ 0.0, 10.0, 20.0, 30.0 /)
+  do i2=1,nPhi
+     phi(i2) =  30.0 * real(i2-1)/real(nPhi-1) * 2.0 * pi / 360.0
+  end do
   ! z
-  z = (/ -2.0, -1.0, 0.0, 1.0, 2.0 /)
+  !z = (/ -2.0, -1.0, 0.0, 1.0, 2.0 /)
+  do i3=1,nz
+     z(i3)= -1.2 * (-1 + real(i3-1)/real(nz-1) )
+  end do
   
   allocate( data_Br(   size(r), size(phi), size(z) ) )
   allocate( data_Bphi( size(r), size(phi), size(z) ) )

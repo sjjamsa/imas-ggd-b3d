@@ -164,9 +164,9 @@ def print_data_dict(data):
 if __name__ == "__main__":
 
 
-    shot       = 16
+    shot       = 18
     tokamak    = "ggdtest"
-    run        = 2
+    run        = 3
     version    = "3"
     user       = getpass.getuser()
     occurrence = 0

@@ -7,7 +7,7 @@ GGD_FLAGS=$(shell pkg-config ggd --libs --cflags )
 write_b3d_ggd : write_b3d_ggd.f90 b3d_ggd.o
 	imasdb "ggdtest"
 	ifort -o $@ $^ $(GGD_FLAGS)
-	./$@
+	time ./$@
 
 
 b3d_ggd.o : b3d_ggd.f90
