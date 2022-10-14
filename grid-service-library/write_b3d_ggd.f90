@@ -14,7 +14,7 @@
 !>
 !-------------------------------------------------------------------------------
 
-program ids_grid_example14_2dstructured_servicelibrary
+program write_b3d_ggd
 
   use b3d_ggd
   use ids_types
@@ -36,6 +36,7 @@ program ids_grid_example14_2dstructured_servicelibrary
 
   real(IDS_real), dimension(:), allocatable :: r, phi, z   !! Node coordinates on the axies
   real(IDS_real), dimension(:,:,:), allocatable :: data_Br, data_Bphi, data_Bz, data_phi, data_psi, data_theta
+  real(IDS_real), dimension(:), allocatable :: data_r_axis, data_z_axis 
   real(IDS_real) :: time 
 
   real(ids_real), parameter :: PI = 4.0_ids_real * ATAN(1.0_ids_real)
@@ -64,8 +65,9 @@ program ids_grid_example14_2dstructured_servicelibrary
   allocate( data_phi(  size(r), size(phi), size(z) ) )
   allocate( data_psi(  size(r), size(phi), size(z) ) )
   allocate( data_theta(size(r), size(phi), size(z) ) )
-  do i1=1,size(r)
-     do i2=1,size(phi)
+  allocate( data_r_axis( size(phi) ), data_z_axis( size(phi) ) )
+  do i2=1,size(phi)
+     do i1=1,size(r)
         do i3=1,size(z)
            data_Br(   i1,i2,i3) = 100.0 * i1 + 10.0 * i2 + 1.0 * i3 + 0.10
            data_Bphi( i1,i2,i3) = 100.0 * i1 + 10.0 * i2 + 1.0 * i3 + 0.20
@@ -75,11 +77,15 @@ program ids_grid_example14_2dstructured_servicelibrary
            data_theta(i1,i2,i3) = 100.0 * i1 + 10.0 * i2 + 1.0 * i3 + 0.70
         end do
      end do
+     data_r_axis( i2) =   i2 + 0.10 
+     data_z_axis( i2) =   i2 + 0.30 
   end do
     
   call write_b3d( shotnum,runnum,treename, username, machine, time,&
        r, phi, z,  data_Br, data_Bphi, data_Bz, code_name='write_b3d_ggd.f90', comment='writing B3D with grid service library', &
-       data_psi=data_psi, data_phi=data_phi, data_theta=data_theta)
+       data_psi=data_psi, data_phi=data_phi, data_theta=data_theta, &
+         data_r_axis=data_r_axis, data_z_axis=data_z_axis)
 
 
-end program ids_grid_example14_2dstructured_servicelibrary
+end program write_b3d_ggd
+

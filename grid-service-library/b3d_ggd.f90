@@ -8,7 +8,8 @@ contains
   
   subroutine write_b3d( shotnum,runnum,treename, username, machine, time, &
        r, phi, z,  data_Br, data_Bphi, data_Bz, code_name, comment, &
-       data_psi, data_phi, data_theta )
+       data_psi, data_phi, data_theta, &
+       data_r_axis, data_z_axis)
 
     use ids_types           !! IMAS IDS standard Fortran data types, e.g.
                             !! real(IDS_real)
@@ -42,7 +43,7 @@ contains
 
     !! variables for the grid
     type(ids_equilibrium) ::  equilibrium
-    type(ids_generic_grid_dynamic), pointer :: grid
+    type(ids_generic_grid_dynamic), pointer :: grid, grid_axis
 
     integer, parameter        :: ndim = 3                       !! Dimensionality of our data
     integer, parameter        :: c1 = COORDTYPE_R               !! Coordinate types of the axes
@@ -53,7 +54,7 @@ contains
     integer,        dimension(1), parameter  :: periodicSpaces = (/ 2 /)     ! phi is periodic
     real(IDS_real),  intent(in) :: time 
 
-    integer :: refstatus
+    integer :: refstatus, status
     integer :: idx
     logical, parameter :: createGridSubsets = .false.
 
@@ -63,6 +64,7 @@ contains
     real(IDS_real), dimension(:,:,:), intent(in), optional :: data_psi   !! Values of the poloidal flux, given on various grid subsets [Wb]
     real(IDS_real), dimension(:,:,:), intent(in), optional :: data_phi   !! Values of the toroidal flux, given on various grid subsets [Wb]
     real(IDS_real), dimension(:,:,:), intent(in), optional :: data_theta !! Values of the poloidal angle, given on various grid subsets [rad]
+    real(IDS_real), dimension(:),     intent(in), optional :: data_r_axis, data_z_axis  !! Magnetic axis coordinates as a function of phi [m]
     integer :: grid_index
 
     integer, parameter  :: gridSubset_index = 1 !nodes 
@@ -72,8 +74,12 @@ contains
 
     integer, parameter :: homogenous_time = 1
 
+    logical :: axis_given
+    
 
+    axis_given = present(data_r_axis) .and. present(data_z_axis) 
 
+    
     !! Preparing database for writing
     !! Through practice it was disclosed that there are some mandatory
     !! steps to be done in order to assure for data to be successfully
@@ -91,7 +97,13 @@ contains
     !! Set General Grid Description substructure
 
     allocate( equilibrium%grids_ggd(1) )
-    allocate( equilibrium%grids_ggd(1)%grid(1) )
+    if ( axis_given) then
+       allocate( equilibrium%grids_ggd(1)%grid(2) )
+       grid_axis => equilibrium%grids_ggd(1)%grid(2)
+
+    else
+       allocate( equilibrium%grids_ggd(1)%grid(1) )
+    end if
     equilibrium%grids_ggd(1)%time = time
     grid  =>  equilibrium%grids_ggd(1)%grid(1)
  
@@ -165,6 +177,16 @@ contains
        call gridStructWriteData( grid, theta_gs,   grid_index, gridSubset_index, data_theta )
     end if
 
+
+    if ( axis_given ) then
+       grid_index = 2 
+       call write_axis_ggd( grid_axis, grid_index, phi, data_r_axis, data_z_axis, status )
+       if (status /= 0 ) write(*,*) 'Could not save magnetic axis to ggd.'
+    end if
+
+
+
+    
     ! === Write the equilibrium IDS ===
 
     write (*,*) "write_b3d_ggd: writing to shot ", shotNum, ", run ", runNum
@@ -195,4 +217,95 @@ contains
 
   end subroutine write_b3d
 
+  subroutine write_axis_ggd(grid,grid_index,phi,data_r_axis,data_z_axis, status)
+
+    use ids_types           !! IMAS IDS standard Fortran data types, e.g.
+                            !! real(IDS_real)
+    use ids_schemas         !! IMAS IDS data structure/definitions
+    use ids_grid_common     !! IMAS IDS grid service library: constant
+                            !! definitions like COORDTYPE_R, COORDTYPE_Z
+
+
+    implicit none
+
+    real(IDS_real), dimension(:),     intent(in) :: data_r_axis, data_z_axis  !! Magnetic axis coordinates as a function of phi [m]
+    real(IDS_real), dimension(:),     intent(in) :: phi !! Node coordinates on the axis (geometrical toroidal angle)
+    type(ids_generic_grid_dynamic), pointer :: grid
+
+    integer, parameter        :: ndim = 3                       !! Dimensionality of our data
+    integer, parameter        :: c1 = COORDTYPE_R               !! Coordinate types of the axes
+    integer, parameter        :: c2 = COORDTYPE_PHI
+    integer, parameter        :: c3 = COORDTYPE_Z
+
+    integer, intent(in) :: grid_index
+    integer, intent(out) :: status
+
+    
+    integer :: i,n
+
+    status = 0
+    
+    n = size(phi)
+    if ( size(data_r_axis) /= n .or. size(data_z_axis) /= n ) then 
+       write(*,*) "size of magnetix axis R and z data must match the size of the phi-data"
+       status = 1
+       return
+    end if
+    
+    grid % identifier % index       = 1 ! linear
+    grid % identifier % name        = "magnetic axis"
+    grid % identifier % description = "The R,z points as a function of toroidal angle"
+
+    ! We have a one-dimensional, toroidal direction space.
+    allocate( grid % space(1) )
+
+    grid % space(1) % identifier % index = 1 ! Primary space defining the standard grid
+
+    grid % space(1) % identifier % name = "toroidal angle" 
+
+    allocate ( grid % space(1) % coordinates_type(ndim) )
+    grid % space(1) % coordinates_type(1) = c1
+    grid % space(1) % coordinates_type(2) = c2
+    grid % space(1) % coordinates_type(3) = c3
+
+    
+    allocate ( grid % space(1) % objects_per_dimension(2) ) ! one for nodes, one for edges
+
+    ! Save nodes
+    !--------------
+    allocate ( grid % space(1) % objects_per_dimension(1) % object(n) )
+    
+    do i=1,n
+       allocate ( grid % space(1) % objects_per_dimension(1) % object(i) % geometry(ndim) )
+       grid % space(1) % objects_per_dimension(1) % object(i) % geometry(1:3) = [data_r_axis(i), phi(i), data_z_axis(i) ]
+       allocate ( grid % space(1) % objects_per_dimension(1) % object(i) % nodes(1) )
+       grid % space(1) % objects_per_dimension(1) % object(i) % nodes(1) = i
+    end do
+
+    ! Save edges
+    !--------------
+    allocate ( grid % space(1) % objects_per_dimension(2) % object(1) )
+    allocate ( grid % space(1) % objects_per_dimension(2) % object(1) % nodes(n) )
+    do i=1,n
+       grid % space(1) % objects_per_dimension(1) % object(1) % nodes(i) = i
+    end do
+
+    ! Mark the subset as magnetic axis
+    !--------------
+    allocate ( grid % grid_subset(1) )
+    grid % grid_subset(1) % identifier % index = 100 !magnetic_axis
+    grid % grid_subset(1) % dimension = 2                          ! dimension leaf (INT_0D), defining dimension of the grid subset elements,
+    allocate ( grid % grid_subset(1) % element(1) )
+    allocate ( grid % grid_subset(1) % element(1) % object (1) )   ! We only have one edge,
+    grid % grid_subset(1) % element(1) % object(1) % space = 1     ! ...
+    grid % grid_subset(1) % element(1) % object(1) % dimension = 2 ! which is in the list of edges.
+    
+
+    grid % grid_subset(1) % element(1) % object (1) % index  = 1 
+
+   
+  end subroutine write_axis_ggd
+
+
+  
 end module b3d_ggd
