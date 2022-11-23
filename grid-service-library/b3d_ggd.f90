@@ -153,7 +153,7 @@ contains
 
 
 
-    grid_index = 1 ! No clue what is the significance of it. One seems to be a safe value, eh?
+    grid_index = grid%identifier%index ! No clue what is the significance of it. Still needs to match the grid.
 
 
     ! Will be resolved as gridStructWriteData3d_Dynamic
