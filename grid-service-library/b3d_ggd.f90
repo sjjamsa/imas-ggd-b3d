@@ -287,7 +287,7 @@ contains
     allocate ( grid % space(1) % objects_per_dimension(2) % object(1) )
     allocate ( grid % space(1) % objects_per_dimension(2) % object(1) % nodes(n) )
     do i=1,n
-       grid % space(1) % objects_per_dimension(1) % object(1) % nodes(i) = i
+       grid % space(1) % objects_per_dimension(2) % object(1) % nodes(i) = i
     end do
 
     ! Mark the subset as magnetic axis
