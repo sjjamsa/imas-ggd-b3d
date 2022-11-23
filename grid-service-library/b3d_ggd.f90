@@ -56,7 +56,7 @@ contains
 
     integer :: refstatus, status
     integer :: idx
-    logical, parameter :: createGridSubsets = .false.
+    logical, parameter :: createGridSubsets = .true.
 
     !! variables for writing the data
     type(ids_generic_grid_scalar)    :: idsField
