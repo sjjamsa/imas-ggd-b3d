@@ -31,3 +31,8 @@ A list of relevant JIRA issues:
   * [IMAS GGD in Python](https://jira.iter.org/browse/IMAS-1764)
 * Not directly related:
   * [Add LOCUST-IMAS wall/GGD functionality](https://jira.iter.org/browse/IMAS-2378)
+
+
+
+
+License of the code and text in this repo: GNU Lesser General Public License (LGPL).
